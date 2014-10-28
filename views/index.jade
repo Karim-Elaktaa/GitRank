@@ -2,8 +2,16 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
-  input(
-	type="text"
-	name="projectLink"
+  form(
+	action='/search',
+	method='POST'
   )
+    .form-group
+      input(
+	id='inputProjectName',
+	type='text',
+	placeholder='Github project name!',
+  	name='projectName'
+     )
+    .form-group
+      button.btn.btn-default Valid
