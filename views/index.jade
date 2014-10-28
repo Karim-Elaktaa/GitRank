@@ -3,7 +3,7 @@ extends layout
 block content
   h1= title
   form(
-	action='/search',
+	action='/',
 	method='POST'
   )
     .form-group
@@ -15,3 +15,9 @@ block content
      )
     .form-group
       button.btn.btn-default Valid
+  
+  if showResults == true
+    h1 Results 
+    p Open issues #{results.open}
+    p Closed issues #{results.closed}
+    p Ratio Open/Closed #{results.ratio}
