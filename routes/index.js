@@ -13,7 +13,7 @@ router.post('/', function(req, res) {
   console.log('resultat: \n');
   githubApi.getNumberOfIssues(req.body.projectName, function(r){
   	console.log('Open '+ r.openIssues + ' Closed '+ r.closedIssues + ' Ratio '+r.ratioOpenClosed);
-  	res.render('index', { title: 'GitRank API testing' , showResults: true, results: {open: r.openIssues, closed: r.closedIssues, ratio: r.ratioOpenClosed} });
+  	res.render('index', { title: 'GitRank API testing' , showResults: true, projectName: req.body.projectName, results: {open: r.openIssues, closed: r.closedIssues, ratio: r.ratioOpenClosed} });
   });
 });
 
