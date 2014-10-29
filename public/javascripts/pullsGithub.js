@@ -2,7 +2,7 @@ var https = require('https');
 var future = require('future');
 var utils = require("./utils");
 
-function getNumberOfPulls(projectName, callback, iterator, currentPage, totalNbPullsOpen, totalNbPullsClosed) {
+exports.getNumberOfPulls = function getNumberOfPulls(projectName, callback, iterator, currentPage, totalNbPullsOpen, totalNbPullsClosed) {
   projectName = typeof projectName !== 'undefined' ? projectName : "angular/angular.js";
   iterator = typeof iterator !== 'undefined' ? iterator : 0;
   currentPage = typeof currentPage !== 'undefined' ? currentPage : 1;
@@ -65,7 +65,7 @@ function getNumberOfPulls(projectName, callback, iterator, currentPage, totalNbP
           ratioOpenClosed: totalNbPullsOpen / totalNbPullsClosed
         };
         callback(res);
-        utils.printLog(functionName, '\n Total Pulls open ' + totalNbPullsOpen + '\n Total Pulls closed ' + totalNbPullsClosed + '\n Ratio Open/Closed ' + totalNbPullsOpen / totalNbPullsClosed);
+        //utils.printLog(functionName, '\n Total Pulls open ' + totalNbPullsOpen + '\n Total Pulls closed ' + totalNbPullsClosed + '\n Ratio Open/Closed ' + totalNbPullsOpen / totalNbPullsClosed);
       }
     });
 
@@ -78,7 +78,3 @@ function getNumberOfPulls(projectName, callback, iterator, currentPage, totalNbP
     console.error(e);
   });
 }
-
-getNumberOfPulls("angular/angular.js", function(res){
-  console.log(res);
-});

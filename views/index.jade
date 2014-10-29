@@ -3,21 +3,46 @@ extends layout
 block content
   h1= title
   form(
-	action='/',
-	method='POST'
+    action='/',
+    method='POST'
   )
     .form-group
       input(
-	id='inputProjectName',
-	type='text',
-	placeholder='Github project name!',
-  	name='projectName'
-     )
+        id='inputProjectName',
+        type='text',
+        placeholder='Github project name!',
+        name='projectName'
+      )
+      <br/><br/>
     .form-group
-      button.btn.btn-default Valid
+      label(for='inputCheckboxV1') Issues
+      input(
+        id='inputCheckboxV1',
+        name='inputCheckbox',
+        type='radio',
+        value=0,
+        checked=typeOfResults==0
+      )
+      <br/>
+      label(for='inputCheckboxV1') Pulls
+      input(
+        id='inputCheckboxV2',
+        name='inputCheckbox',
+        type='radio',
+        value=1,
+        checked=typeOfResults==1
+      )
+      <br/><br/>
+    .form-group
+      button.btn.btn-default Go!
   
+
   if showResults == true
-    h1 Results for #{projectName} 
-    p Open issues #{results.open}
-    p Closed issues #{results.closed}
+    if typeOfResults == 0
+      h1 Results (issues) for [#{projectName}]
+    else
+      if typeOfResults == 1
+        h1 Results (pulls) for [#{projectName}]
+    p Open #{results.open}
+    p Closed #{results.closed}
     p Ratio Open/Closed #{results.ratio}
