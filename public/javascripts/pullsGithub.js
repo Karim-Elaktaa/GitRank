@@ -2,22 +2,22 @@ var https = require('https');
 var future = require('future');
 var utils = require("./utils");
 
-exports.getNumberOfIssues = function getNumberOfIssues(projectName, callback, iterator, currentPage, totalNbIssuesOpen, totalNbIssuesClosed) {
+function getNumberOfPulls(projectName, callback, iterator, currentPage, totalNbPullsOpen, totalNbPullsClosed) {
   projectName = typeof projectName !== 'undefined' ? projectName : "angular/angular.js";
   iterator = typeof iterator !== 'undefined' ? iterator : 0;
   currentPage = typeof currentPage !== 'undefined' ? currentPage : 1;
-  totalNbIssuesOpen = typeof totalNbIssuesOpen !== 'undefined' ? totalNbIssuesOpen : 0;
-  totalNbIssuesClosed = typeof totalNbIssuesClosed !== 'undefined' ? totalNbIssuesClosed : 0;
+  totalNbPullsOpen = typeof totalNbPullsOpen !== 'undefined' ? totalNbPullsOpen : 0;
+  totalNbPullsClosed = typeof totalNbPullsClosed !== 'undefined' ? totalNbPullsClosed : 0;
 
-  var functionName = "getNumberOfIssues"
-  // utils.printLog(functionName, 'launch function \n totalNbIssuesOpen = ' + totalNbIssuesOpen + '\n totalNbIssuesClosed = ' + totalNbIssuesClosed);
+  var functionName = "getNumberOfPulls"
+    // utils.printLog(functionName, 'launch function \n totalNbPullsOpen = ' + totalNbPullsOpen + '\n totalNbPullsClosed = ' + totalNbPullsClosed);
   console.log("...");
 
   var itemPerPage = 100;
   var options = {
     hostname: 'api.github.com',
     port: 443,
-    path: '/repos/' + projectName + '/issues?state=all&per_page=' + itemPerPage + '&page=' + currentPage + "&" + utils.credentialApiTesting,
+    path: '/repos/' + projectName + '/pulls?state=all&per_page=' + itemPerPage + '&page=' + currentPage + "&" + utils.credentialApiTesting,
     method: 'GET',
     headers: {
       'User-Agent': 'Karim-Elaktaa'
@@ -29,9 +29,8 @@ exports.getNumberOfIssues = function getNumberOfIssues(projectName, callback, it
 
     var buffer = "",
       data;
-    var numberOfIssuesOpen = 0,
-      numberOfIssuesClosed = 0,
-      numberOfIssuesIncludingPR = 0;
+    var numberOfPullsOpen = 0,
+      numberOfPullsClosed = 0;
 
     res.on('data', function(d) {
       // process.stdout.write(d);
@@ -40,36 +39,33 @@ exports.getNumberOfIssues = function getNumberOfIssues(projectName, callback, it
 
     res.on("end", function(err) {
       data = JSON.parse(buffer);
-      numberOfIssuesIncludingPR = data.length;
       for (var i = 0; i < data.length; i++) {
-        try {
-          data[i].pull_request.url;
-          // utils.printLog(functionName, 'PULL REQUEST ' + data[i].pull_request.url);
+        if (data[i].state == "open") {
+          numberOfPullsOpen++;
         }
-        catch (err) {
-          if (data[i].state == "open") {
-            numberOfIssuesOpen++;
-          }
-          else {
-            numberOfIssuesClosed++;
-          }
-          // utils.printLog(functionName, 'NOT PULL REQUEST');
+        else {
+          numberOfPullsClosed++;
         }
+        // utils.printLog(functionName, 'NOT PULL REQUEST');
       }
 
       // numberOfItem = data.length;
-      totalNbIssuesOpen += numberOfIssuesOpen;
-      totalNbIssuesClosed += numberOfIssuesClosed;
+      totalNbPullsOpen += numberOfPullsOpen;
+      totalNbPullsClosed += numberOfPullsClosed;
 
       currentPage++;
       iterator++;
-      if (numberOfIssuesIncludingPR == itemPerPage) {
-        getNumberOfIssues(projectName, callback, iterator, currentPage, totalNbIssuesOpen, totalNbIssuesClosed);
+      if (numberOfPullsOpen + numberOfPullsClosed == itemPerPage) {
+        getNumberOfPulls(projectName, callback, iterator, currentPage, totalNbPullsOpen, totalNbPullsClosed);
       }
       else {
-	var res = {openIssues: totalNbIssuesOpen, closedIssues: totalNbIssuesClosed, ratioOpenClosed: totalNbIssuesOpen/totalNbIssuesClosed};
-	callback(res);
-        // utils.printLog(functionName, '\n Total issues open ' + totalNbIssuesOpen + '\n Total issues closed ' + totalNbIssuesClosed + '\n Ratio Open/Closed ' + totalNbIssuesOpen / totalNbIssuesClosed);
+        var res = {
+          openPulls: totalNbPullsOpen,
+          closedPulls: totalNbPullsClosed,
+          ratioOpenClosed: totalNbPullsOpen / totalNbPullsClosed
+        };
+        callback(res);
+        utils.printLog(functionName, '\n Total Pulls open ' + totalNbPullsOpen + '\n Total Pulls closed ' + totalNbPullsClosed + '\n Ratio Open/Closed ' + totalNbPullsOpen / totalNbPullsClosed);
       }
     });
 
@@ -82,3 +78,7 @@ exports.getNumberOfIssues = function getNumberOfIssues(projectName, callback, it
     console.error(e);
   });
 }
+
+getNumberOfPulls("angular/angular.js", function(res){
+  console.log(res);
+});
