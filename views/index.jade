@@ -17,7 +17,7 @@ block content
     .form-group
       label(for='inputCheckboxV1') Issues
       input(
-        id='inputCheckboxV1',
+        id='inputCheckboxV0',
         name='inputCheckbox',
         type='radio',
         value=0,
@@ -26,11 +26,20 @@ block content
       <br/>
       label(for='inputCheckboxV1') Pulls
       input(
-        id='inputCheckboxV2',
+        id='inputCheckboxV1',
         name='inputCheckbox',
         type='radio',
         value=1,
         checked=typeOfResults==1
+      )
+      <br/>
+      label(for='inputCheckboxV1') Commits
+      input(
+        id='inputCheckboxV2',
+        name='inputCheckbox',
+        type='radio',
+        value=2,
+        checked=typeOfResults==2
       )
       <br/><br/>
     .form-group
@@ -40,9 +49,13 @@ block content
   if showResults == true
     if typeOfResults == 0
       h1 Results (issues) for [#{projectName}]
+      p Open #{results.open} <br /> Closed #{results.closed} <br /> Ratio Open/Closed #{results.ratio} 
     else
       if typeOfResults == 1
         h1 Results (pulls) for [#{projectName}]
-    p Open #{results.open}
-    p Closed #{results.closed}
-    p Ratio Open/Closed #{results.ratio}
+        p Open #{results.open} <br /> Closed #{results.closed} <br /> Ratio Open/Closed #{results.ratio}
+      else
+        if typeOfResults == 2
+          h1 Results (commits) for [#{projectName}]
+          p Date last commit : #{results.dateLastCommit} <br /> Commits since 3 months : #{results.totalNbCommitsSince3M}
+

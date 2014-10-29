@@ -2,22 +2,25 @@ var https = require('https');
 var future = require('future');
 var utils = require("./utils");
 
-exports.getNumberOfIssues = function getNumberOfIssues(projectName, callback, iterator, currentPage, totalNbIssuesOpen, totalNbIssuesClosed) {
+exports.getCommitsInfo = function getCommitsInfo(projectName, callback, iterator, currentPage, totalNbCommits, dateLastCommit) {
   projectName = typeof projectName !== 'undefined' ? projectName : "angular/angular.js";
   iterator = typeof iterator !== 'undefined' ? iterator : 0;
   currentPage = typeof currentPage !== 'undefined' ? currentPage : 1;
-  totalNbIssuesOpen = typeof totalNbIssuesOpen !== 'undefined' ? totalNbIssuesOpen : 0;
-  totalNbIssuesClosed = typeof totalNbIssuesClosed !== 'undefined' ? totalNbIssuesClosed : 0;
+  totalNbCommits = typeof totalNbCommits !== 'undefined' ? totalNbCommits : 0;
+  dateLastCommit = typeof dateLastCommit !== 'undefined' ? dateLastCommit : 0;
 
-  var functionName = "getNumberOfIssues"
-  // utils.printLog(functionName, 'launch function \n totalNbIssuesOpen = ' + totalNbIssuesOpen + '\n totalNbIssuesClosed = ' + totalNbIssuesClosed);
+  var functionName = "getCommitsInfo"
+    // utils.printLog(functionName, 'launch function \n totalNbCommits = ' + totalNbCommits );
   console.log("...");
+
+  var date = new Date();
+  date.setMonth(date.getMonth() - 3)
 
   var itemPerPage = 100;
   var options = {
     hostname: 'api.github.com',
     port: 443,
-    path: '/repos/' + projectName + '/issues?state=all&per_page=' + itemPerPage + '&page=' + currentPage + "&" + utils.credentialApiTesting,
+    path: '/repos/' + projectName + '/commits?' + utils.credentialApiTesting + '&since=' + date.toISOString() + '&per_page=' + itemPerPage + '&page=' + currentPage,
     method: 'GET',
     headers: {
       'User-Agent': 'Karim-Elaktaa'
@@ -29,9 +32,6 @@ exports.getNumberOfIssues = function getNumberOfIssues(projectName, callback, it
 
     var buffer = "",
       data;
-    var numberOfIssuesOpen = 0,
-      numberOfIssuesClosed = 0,
-      numberOfIssuesIncludingPR = 0;
 
     res.on('data', function(d) {
       // process.stdout.write(d);
@@ -40,36 +40,25 @@ exports.getNumberOfIssues = function getNumberOfIssues(projectName, callback, it
 
     res.on("end", function(err) {
       data = JSON.parse(buffer);
-      numberOfIssuesIncludingPR = data.length;
-      for (var i = 0; i < data.length; i++) {
-        try {
-          data[i].pull_request.url;
-          // utils.printLog(functionName, 'PULL REQUEST ' + data[i].pull_request.url);
+      if (data != 'undefined' && data.length >= 1) {
+        if (currentPage == 1) {
+          dateLastCommit = data[0].commit.committer.date;
         }
-        catch (err) {
-          if (data[i].state == "open") {
-            numberOfIssuesOpen++;
-          }
-          else {
-            numberOfIssuesClosed++;
-          }
-          // utils.printLog(functionName, 'NOT PULL REQUEST');
-        }
+        totalNbCommits = totalNbCommits + data.length;
       }
-
-      // numberOfItem = data.length;
-      totalNbIssuesOpen += numberOfIssuesOpen;
-      totalNbIssuesClosed += numberOfIssuesClosed;
 
       currentPage++;
       iterator++;
-      if (numberOfIssuesIncludingPR == itemPerPage) {
-        getNumberOfIssues(projectName, callback, iterator, currentPage, totalNbIssuesOpen, totalNbIssuesClosed);
+
+      if (data.length == itemPerPage) {
+        getCommitsInfo(projectName, callback, iterator, currentPage, totalNbCommits, dateLastCommit);
       }
       else {
-	var res = {openIssues: totalNbIssuesOpen, closedIssues: totalNbIssuesClosed, ratioOpenClosed: totalNbIssuesOpen/totalNbIssuesClosed};
-	callback(res);
-        // utils.printLog(functionName, '\n Total issues open ' + totalNbIssuesOpen + '\n Total issues closed ' + totalNbIssuesClosed + '\n Ratio Open/Closed ' + totalNbIssuesOpen / totalNbIssuesClosed);
+        var res = {
+          dateLastCommit: dateLastCommit,
+          totalNbCommitsSince3M: totalNbCommits
+        };
+        callback(res);
       }
     });
 
