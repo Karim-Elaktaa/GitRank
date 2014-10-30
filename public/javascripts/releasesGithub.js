@@ -2,7 +2,7 @@ var https = require('https');
 var future = require('future');
 var utils = require("./utils");
 
-exports.getNumberOfIssues = function getNumberOfIssues(projectName, callback, iterator, currentPage, totalNbIssuesOpen, totalNbIssuesClosed) {
+function getNumberOfIssues(projectName, callback, iterator, currentPage, totalNbIssuesOpen, totalNbIssuesClosed) {
   projectName = typeof projectName !== 'undefined' ? projectName : "angular/angular.js";
   iterator = typeof iterator !== 'undefined' ? iterator : 0;
   currentPage = typeof currentPage !== 'undefined' ? currentPage : 1;
@@ -10,7 +10,7 @@ exports.getNumberOfIssues = function getNumberOfIssues(projectName, callback, it
   totalNbIssuesClosed = typeof totalNbIssuesClosed !== 'undefined' ? totalNbIssuesClosed : 0;
 
   var functionName = "getNumberOfIssues"
-  // utils.printLog(functionName, 'launch function \n totalNbIssuesOpen = ' + totalNbIssuesOpen + '\n totalNbIssuesClosed = ' + totalNbIssuesClosed);
+  utils.printLog(functionName, 'launch function \n totalNbIssuesOpen = ' + totalNbIssuesOpen + '\n totalNbIssuesClosed = ' + totalNbIssuesClosed);
   console.log("...");
 
   var itemPerPage = 100;
